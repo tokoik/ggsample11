@@ -1,146 +1,38 @@
-// ƒEƒBƒ“ƒhƒEŠÖ˜A‚Ìˆ—
-#include "Window.h"
+ï»¿//
+// ãƒ¡ã‚¤ãƒ³ãƒ—ãƒ­ã‚°ãƒ©ãƒ 
+//
 
-// •W€ƒ‰ƒCƒuƒ‰ƒŠ
-#include <cmath>
-#include <memory>
+// ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹ã®è¡¨ç¤ºã®æº–å‚™
+#if defined(_WIN32)
+#  include <Windows.h>
+#  include <atlstr.h>  
+#endif
 
-// ƒAƒjƒ[ƒVƒ‡ƒ“‚ÌüŠúi•bj
-const double cycle(10.0);
+// ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³æœ¬ä½“
+#include "GgApplication.h"
 
-// ƒIƒuƒWƒFƒNƒg‚Ì”
-const int objects(6);
-
-// ŒõŒ¹
-GgSimpleShader::Light light =
+//
+// ãƒ¡ã‚¤ãƒ³ãƒ—ãƒ­ã‚°ãƒ©ãƒ 
+//
+int main() try
 {
-  { 0.2f, 0.2f, 0.2f, 1.0f }, // ŠÂ‹«Œõ¬•ª
-  { 1.0f, 1.0f, 1.0f, 0.0f }, // ŠgU”½ËŒõ¬•ª
-  { 1.0f, 1.0f, 1.0f, 0.0f }, // ‹¾–Ê”½ËŒõ¬•ª
-  { 0.0f, 0.0f, 1.0f, 1.0f }  // ‹“_À•WŒn‚ÌŒõŒ¹ˆÊ’u
-};
+  // ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³æœ¬ä½“
+  GgApplication app;
 
-// ƒ[ƒ‹ƒhÀ•WŒn‚ÌŒõŒ¹ˆÊ’u
-const GLfloat lp[] = { 0.0f, 4.0f, 0.0f, 1.0f };
-
-// ƒAƒjƒ[ƒVƒ‡ƒ“‚Ì•ÏŠ·s—ñ‚ğ‹‚ß‚é
-static GgMatrix animate(GLfloat t, int i)
-{
-  const GLfloat h(fmod(36.0f * t, 2.0f) - 1.0f);
-  const GLfloat x(0.0f), y(1.0f - h * h), z(1.5f);
-  const GLfloat r(static_cast<GLfloat>(M_PI * (2.0 * i / objects - 4.0 * t)));
-
-  return ggRotateY(r).translate(x, y, z);
+  // ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã‚’å®Ÿè¡Œã™ã‚‹
+  app.run();
 }
-
-//
-// ƒƒCƒ“ƒvƒƒOƒ‰ƒ€
-//
-int main(int argc, const char * argv[])
+catch (const std::exception &e)
 {
-  // ƒEƒBƒ“ƒhƒE‚ğì¬‚·‚é
-  Window window("ggsample11");
+  // ã‚¨ãƒ©ãƒ¼ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’è¡¨ç¤ºã™ã‚‹
+#if defined(_WIN32)
+  const CStringW message(e.what());
+  MessageBox(NULL, LPCWSTR(message), TEXT("ã‚²ãƒ¼ãƒ ã‚°ãƒ©ãƒ•ã‚£ãƒƒã‚¯ã‚¹ç‰¹è«–"), MB_OK | MB_ICONERROR);
+#else
+  std::cerr << e.what() << "\n\n[Type enter key] ";
+  std::cin.get();
+#endif
 
-  // ”wŒiF‚Ìİ’è
-  glClearColor(0.1f, 0.2f, 0.3f, 0.0f);
-
-  // ‰B–ÊÁ‹‚Ìİ’è
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_CULL_FACE);
-
-  // ƒvƒƒOƒ‰ƒ€ƒIƒuƒWƒFƒNƒg‚Ìì¬
-  GgSimpleShader shader("simple.vert", "simple.frag");
-
-  // ƒrƒ…[•ÏŠ·s—ñ‚ğ mv ‚É‹‚ß‚é
-  const GgMatrix mv(ggLookat(0.0f, 3.0f, 8.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f));
-
-  // ‹“_À•WŒn‚ÌŒõŒ¹ˆÊ’u‚ğ‹‚ß‚é
-  mv.projection(light.position, lp);
-
-  // ‰e•t‚¯ˆ——p‚Ì•ÏŠ·s—ñ (‰e‚Ì‚‚³‚ğ 0 ‚É‚·‚é‚½‚ß‚É y À•W’l‚É 0 ‚ğ‚©‚¯‚é)
-  const GgMatrix ms(ggScale(1.0f, 0.0f, 1.0f));
-
-  // }Œ`‚Ì“Ç‚İ‚İ
-  const GgObj floor("floor.obj");
-  const std::unique_ptr<const GgElements> object(ggElementsObj("bunny.obj"));
-
-  // ŠÛ‰e—p‚Ì‘È‰~
-  const std::unique_ptr<const GgTriangles> ellipse(ggEllipse(0.8f, 0.6f, 24));
-
-  // Œo‰ßŠÔ‚ÌƒŠƒZƒbƒg
-  glfwSetTime(0.0);
-
-  // ƒEƒBƒ“ƒhƒE‚ªŠJ‚¢‚Ä‚¢‚éŠÔ‚­‚è•Ô‚µ•`‰æ‚·‚é
-  while (window.shouldClose() == GL_FALSE)
-  {
-    // ‚ÌŒv‘ª
-    const float t(static_cast<float>(fmod(glfwGetTime(), cycle) / cycle));
-
-    // “Š‰e•ÏŠ·s—ñ
-    const GgMatrix mp(ggPerspective(0.5f, window.getAspect(), 1.0f, 15.0f));
-
-    // ƒVƒF[ƒ_ƒvƒƒOƒ‰ƒ€‚Ìg—pŠJn
-    shader.use();
-    shader.loadLight(light);
-
-    // ‰æ–ÊÁ‹
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // °‚Ì•`‰æ
-    shader.loadMatrix(mp, mv);
-    floor.draw(shader);
-
-    // ‰e‚ÌŞ¿
-    shader.loadMaterialAmbient(0.2f, 0.2f, 0.2f, 1.0f);
-    shader.loadMaterialDiffuse(0.0f, 0.0f, 0.0f, 0.0f);
-    shader.loadMaterialSpecular(0.0f, 0.0f, 0.0f, 0.0f);
-    shader.loadMaterialShininess(0.0f);
-
-    // ‰e‚Ì•`‰æ
-    glDisable(GL_DEPTH_TEST);
-    for (int i = 1; i <= objects; ++i)
-    {
-      // ƒAƒjƒ[ƒVƒ‡ƒ“‚Ì•ÏŠ·s—ñ
-      const GgMatrix ma(animate(t, i));
-
-      // ‰e‚Ì•`‰æ (‘È‰~‚Í XY •½–Êã‚É‚ ‚é‚Ì‚Å X ²’†S‚É -ƒÎ/2 ‰ñ“])
-      shader.loadMatrix(mp, mv * ms * ma * ggRotateX(-1.570796f));
-      ellipse->draw();
-    }
-    glEnable(GL_DEPTH_TEST);
-
-    // ƒVƒF[ƒ_ƒvƒƒOƒ‰ƒ€‚Ìg—pŠJn ( t ‚É‚à‚Æ‚Ã‚­‰ñ“]ƒAƒjƒ[ƒVƒ‡ƒ“)
-    for (int i = 1; i <= objects; ++i)
-    {
-      // ƒAƒjƒ[ƒVƒ‡ƒ“‚Ì•ÏŠ·s—ñ
-      const GgMatrix ma(animate(t, i));
-
-      // ƒIƒuƒWƒFƒNƒg‚ÌF
-      const GLfloat color[] =
-      {
-        (i & 1) * 0.4f + 0.4f,
-        (i & 2) * 0.2f + 0.4f,
-        (i & 4) * 0.1f + 0.4f,
-        1.0f
-      };
-
-      // }Œ`‚ÌŞ¿
-      shader.loadMaterialAmbient(color);
-      shader.loadMaterialDiffuse(color);
-      shader.loadMaterialSpecular(0.2f, 0.2f, 0.2f, 0.0f);
-      shader.loadMaterialShininess(40.0f);
-
-      // }Œ`‚Ì•`‰æ
-      shader.loadMatrix(mp, mv * ma);
-      object->draw();
-    }
-
-    // ƒVƒF[ƒ_ƒvƒƒOƒ‰ƒ€‚Ìg—pI—¹
-    glUseProgram(0);
-
-    // ƒJƒ‰[ƒoƒbƒtƒ@‚ğ“ü‚ê‘Ö‚¦‚ÄƒCƒxƒ“ƒg‚ğæ‚èo‚·
-    window.swapBuffers();
-  }
-
-  return 0;
+  // ãƒ–ãƒ­ã‚°ãƒ©ãƒ ã‚’çµ‚äº†ã™ã‚‹
+  return EXIT_FAILURE;
 }
