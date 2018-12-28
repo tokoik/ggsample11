@@ -63,7 +63,7 @@ void GgApplication::run()
   GgSimpleShader shader("ggsample11.vert", "ggsample11.frag");
 
   // 床の図形データの読み込み
-  const GgSimpleObj floor("floor.obj", shader);
+  const GgSimpleObj floor("floor.obj");
 
   // 丸影用の楕円の作成
   const std::unique_ptr<const GgTriangles> ellipse(ggEllipse(0.8f, 0.6f, 24));
@@ -85,7 +85,7 @@ void GgApplication::run()
     const GLfloat b((j & 4) * 0.1f + 0.4f);
 
     // 物体の色を設定する
-    objectMaterialBuffer.loadMaterialAmbientAndDiffuse(r, g, b, 1.0f, i);
+    objectMaterialBuffer.loadAmbientAndDiffuse(r, g, b, 1.0f, i);
   }
 
   // ビュー変換行列を mv に求める
@@ -112,7 +112,6 @@ void GgApplication::run()
   };
   const GgMatrix ms(m);
 
-
   //
   // その他の設定
   //
@@ -128,7 +127,7 @@ void GgApplication::run()
   glfwSetTime(0.0);
 
   // ウィンドウが開いている間くり返し描画する
-  while (window.shouldClose() == GL_FALSE)
+  while (window)
   {
     // 時刻の計測
     const float t(static_cast<float>(fmod(glfwGetTime(), cycle) / cycle));
@@ -137,8 +136,7 @@ void GgApplication::run()
     const GgMatrix mp(ggPerspective(0.5f, window.getAspect(), 1.0f, 15.0f));
 
     // シェーダプログラムの使用開始
-    shader.use();
-    shader.selectLight(lightBuffer);
+    shader.use(lightBuffer);
 
     // 画面消去
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -157,7 +155,7 @@ void GgApplication::run()
     //
 
     // 影の材質
-    shader.selectMaterial(materialBuffer);
+    materialBuffer.select();
 
     // 影の描画
     glDisable(GL_DEPTH_TEST);
@@ -168,7 +166,7 @@ void GgApplication::run()
 
       // 影の描画 (楕円は XY 平面上にあるので X 軸中心に -π/2 回転)
       //   【宿題】楕円の代わりに影を落とす図形そのものを描く (-π/2 回転は不要)
-      shader.loadMatrix(mp, mv * ms * ma * ggRotateX(-1.570796f));
+      shader.loadModelviewMatrix(mv * ms * ma * ggRotateX(-1.570796f));
       ellipse->draw();
     }
     glEnable(GL_DEPTH_TEST);
@@ -184,15 +182,12 @@ void GgApplication::run()
       const GgMatrix ma(animate(t, i));
 
       // 図形の材質
-      shader.selectMaterial(objectMaterialBuffer, i);
+      objectMaterialBuffer.select(i);
 
       // 図形の描画
-      shader.loadMatrix(mp, mv * ma);
+      shader.loadModelviewMatrix(mv * ma);
       object->draw();
     }
-
-    // シェーダプログラムの使用終了
-    glUseProgram(0);
 
     // カラーバッファを入れ替えてイベントを取り出す
     window.swapBuffers();
