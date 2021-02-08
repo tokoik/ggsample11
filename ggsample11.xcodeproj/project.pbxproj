@@ -134,8 +134,8 @@
 				7D67BE41158CF2C900D91B76 /* bunny.obj in Resources */,
 				7D07A9D61EF7C5C2008ABC8B /* bunny.mtl in Resources */,
 				7D07A9D41EF7C5BC008ABC8B /* floor.obj in Resources */,
-				7D57106723F8FDD600856C4B /* gg.icns in Resources */,
 				7D07A9D81EF7C5C6008ABC8B /* floor.mtl in Resources */,
+				7D57106723F8FDD600856C4B /* gg.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
