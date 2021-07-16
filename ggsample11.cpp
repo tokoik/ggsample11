@@ -1,18 +1,24 @@
-﻿// ウィンドウ関連の処理
-#include "Window.h"
+﻿//
+// ゲームグラフィックス特論宿題アプリケーション
+//
+#include "GgApp.h"
 
-// 標準ライブラリ
-#include <cmath>
-#include <memory>
+// プロジェクト名
+#ifndef PROJECT_NAME
+#  define PROJECT_NAME "ggsample11"
+#endif
 
 // アニメーションの周期（秒）
-const double cycle(10.0);
+constexpr auto cycle{ 10.0 };
 
 // オブジェクトの数
-const int objects(6);
+constexpr auto objects{ 6 };
+
+// ウィンドウの解像度
+constexpr auto dWidth{ 800 }, dHeight{ 800 };
 
 // 光源
-GgSimpleShader::Light light =
+GgSimpleShader::Light light
 {
   { 0.2f, 0.2f, 0.2f, 1.0f }, // 環境光成分
   { 1.0f, 1.0f, 1.0f, 0.0f }, // 拡散反射光成分
@@ -21,7 +27,7 @@ GgSimpleShader::Light light =
 };
 
 // 物体の材質
-const GgSimpleShader::Material objectMaterial =
+const GgSimpleShader::Material objectMaterial
 {
   { 0.8f, 0.8f, 0.8f, 1.0f }, // 環境光に対する反射係数
   { 0.8f, 0.8f, 0.8f, 0.0f }, // 拡散反射係数
@@ -30,7 +36,7 @@ const GgSimpleShader::Material objectMaterial =
 };
 
 // 影の材質
-const GgSimpleShader::Material shadowMaterial =
+const GgSimpleShader::Material shadowMaterial
 {
   { 0.2f, 0.2f, 0.2f, 1.0f }, // 環境光に対する反射係数
   { 0.0f, 0.0f, 0.0f, 0.0f }, // 拡散反射係数
@@ -39,57 +45,57 @@ const GgSimpleShader::Material shadowMaterial =
 };
 
 // ワールド座標系の光源位置
-const GgVector lp = { 0.0f, 4.0f, 0.0f, 1.0f };
+const GgVector lp{ 0.0f, 4.0f, 0.0f, 1.0f };
 
 // アニメーションの変換行列を求める
 static GgMatrix animate(GLfloat t, int i)
 {
-  const GLfloat h(fmod(36.0f * t, 2.0f) - 1.0f);
-  const GLfloat x(0.0f), y(1.0f - h * h), z(1.5f);
-  const GLfloat r(static_cast<GLfloat>(M_PI * (2.0 * i / objects - 4.0 * t)));
+  const auto h{ fmod(36.0f * t, 2.0f) - 1.0f };
+  const auto x{ 0.0f }, y{ 1.0f - h * h }, z{ 1.5f };
+  const auto r{ static_cast<GLfloat>(M_PI * (2.0 * i / objects - 4.0 * t)) };
 
   return ggRotateY(r).translate(x, y, z);
 }
 
 //
-// アプリケーションの実行
+// アプリケーション本体
 //
-void app()
+int GgApp::main(int argc, const char* const* argv)
 {
-  // ウィンドウを作成する
-  Window window("ggsample11");
+  // ウィンドウを作成する (この行は変更しないでください)
+  Window window{ argc > 1 ? argv[1] : PROJECT_NAME, dWidth, dHeight };
 
   // プログラムオブジェクトの作成
-  GgSimpleShader shader("ggsample11.vert", "ggsample11.frag");
+  GgSimpleShader shader{ PROJECT_NAME ".vert", PROJECT_NAME ".frag" };
 
   // 床の図形データの読み込み
-  const GgSimpleObj floor("floor.obj");
+  const GgSimpleObj floor{ "floor.obj" };
 
   // 丸影用の楕円の作成
-  const std::unique_ptr<const GgTriangles> ellipse(ggEllipse(0.8f, 0.6f, 24));
+  const std::unique_ptr<const GgTriangles> ellipse{ ggEllipse(0.8f, 0.6f, 24) };
 
   // 影の材質バッファ
-  const GgSimpleShader::MaterialBuffer materialBuffer(shadowMaterial);
+  const GgSimpleShader::MaterialBuffer materialBuffer{ shadowMaterial };
 
   // 物体の図形データの読み込み
-  const std::unique_ptr<const GgElements> object(ggElementsObj("bunny.obj"));
+  const std::unique_ptr<const GgElements> object{ ggElementsObj("bunny.obj") };
 
   // 物体の材質
-  GgSimpleShader::MaterialBuffer objectMaterialBuffer(objectMaterial, objects);
+  GgSimpleShader::MaterialBuffer objectMaterialBuffer{ objectMaterial, objects };
   for (int i = 0; i < objects; ++i)
   {
     // 個々の物体の色を決める
-    const int j(i % 6 + 1);
-    const GLfloat r((j & 1) * 0.4f + 0.4f);
-    const GLfloat g((j & 2) * 0.2f + 0.4f);
-    const GLfloat b((j & 4) * 0.1f + 0.4f);
+    const int j{ i % 6 + 1 };
+    const GLfloat r{ (j & 1) * 0.4f + 0.4f };
+    const GLfloat g{ (j & 2) * 0.2f + 0.4f };
+    const GLfloat b{ (j & 4) * 0.1f + 0.4f };
 
     // 物体の色を設定する
     objectMaterialBuffer.loadAmbientAndDiffuse(r, g, b, 1.0f, i);
   }
 
   // ビュー変換行列を mv に求める
-  const GgMatrix mv(ggLookat(0.0f, 3.0f, 8.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f));
+  const auto mv{ ggLookat(0.0f, 3.0f, 8.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f) };
 
   //
   // 影つけ処理の設定
@@ -99,18 +105,21 @@ void app()
   light.position = mv * lp;
 
   // 光源
-  const GgSimpleShader::LightBuffer lightBuffer(light);
+  const GgSimpleShader::LightBuffer lightBuffer{ light };
 
+  //
   // 影付け処理用の変換行列 (丸影に使う楕円を床に張り付けるために y 座標値に 0 をかける)
   //   【宿題】これを Projection Shadow 用の変換行列に置き換える
-  const GLfloat m[] =
+  // 　　　　　※この変換行列はシャドウマッピングでは使いません
+  //
+  const GLfloat m[]
   {
       1.0f,   0.0f,   0.0f,   0.0f,
       0.0f,   0.0f,   0.0f,   0.0f,
       0.0f,   0.0f,   1.0f,   0.0f,
       0.0f,   0.0f,   0.0f,   1.0f
   };
-  const GgMatrix ms(m);
+  const GgMatrix ms{ m };
 
   //
   // その他の設定
@@ -130,10 +139,10 @@ void app()
   while (window)
   {
     // 時刻の計測
-    const float t(static_cast<float>(fmod(glfwGetTime(), cycle) / cycle));
+    const auto t{ static_cast<float>(fmod(glfwGetTime(), cycle) / cycle) };
 
     // 投影変換行列
-    const GgMatrix mp(ggPerspective(0.5f, window.getAspect(), 1.0f, 15.0f));
+    const auto mp{ ggPerspective(0.5f, window.getAspect(), 1.0f, 15.0f) };
 
     // シェーダプログラムの使用開始
     shader.use(lightBuffer);
@@ -142,7 +151,7 @@ void app()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     //
-    // 1. 最初に床を描画します
+    // １．最初に床を描画します
     //
 
     // 床の描画
@@ -150,8 +159,9 @@ void app()
     floor.draw();
 
     //
-    // 2. 影のオブジェクトを床の高さに描画します
-    //      影のオブジェクトが確実に描画されるよう隠面消去処理を無効します
+    // ２．影のオブジェクトを床の高さに描画します
+    // 　　　影のオブジェクトが確実に描画されるよう隠面消去処理を無効にします
+    // 　　　※この処理はシャドウマッピングでは不要です
     //
 
     // 影の材質
@@ -162,7 +172,7 @@ void app()
     for (int i = 0; i < objects; ++i)
     {
       // アニメーションの変換行列
-      const GgMatrix ma(animate(t, i));
+      const auto ma{ animate(t, i) };
 
       // 影の描画 (楕円は XY 平面上にあるので X 軸中心に -π/2 回転)
       //   【宿題】楕円の代わりに影を落とす図形そのものを描く (-π/2 回転は不要)
@@ -172,14 +182,14 @@ void app()
     glEnable(GL_DEPTH_TEST);
 
     //
-    // 3. 図形を描画します
+    // ３．図形を描画します
     //
 
     // シェーダプログラムの使用開始 (時刻 t にもとづく回転アニメーション)
     for (int i = 0; i < objects; ++i)
     {
       // アニメーションの変換行列
-      const GgMatrix ma(animate(t, i));
+      const auto ma{ animate(t, i) };
 
       // 図形の材質
       objectMaterialBuffer.select(i);
@@ -192,4 +202,6 @@ void app()
     // カラーバッファを入れ替えてイベントを取り出す
     window.swapBuffers();
   }
+
+  return 0;
 }
