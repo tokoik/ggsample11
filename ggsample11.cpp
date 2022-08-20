@@ -50,7 +50,7 @@ const GgVector lp{ 0.0f, 4.0f, 0.0f, 1.0f };
 // アニメーションの変換行列を求める
 static GgMatrix animate(GLfloat t, int i)
 {
-  const auto h{ fmod(36.0f * t, 2.0f) - 1.0f };
+  const auto h{ fmodf(36.0f * t, 2.0f) - 1.0f };
   const auto x{ 0.0f }, y{ 1.0f - h * h }, z{ 1.5f };
   const auto r{ static_cast<GLfloat>(M_PI * (2.0 * i / objects - 4.0 * t)) };
 
