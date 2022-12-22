@@ -155,10 +155,10 @@
     <ClInclude Include="gg.h" />
     <ClInclude Include="GgApp.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gg.cpp" />
+    <ClCompile Include="GgApp.cpp" />
     <ClCompile Include="ggsample11.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
