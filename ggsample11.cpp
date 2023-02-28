@@ -72,13 +72,13 @@ int GgApp::main(int argc, const char* const* argv)
   const GgSimpleObj floor{ "floor.obj" };
 
   // 丸影用の楕円の作成
-  const std::unique_ptr<const GgTriangles> ellipse{ ggEllipse(0.8f, 0.6f, 24) };
+  const auto ellipse{ ggEllipse(0.8f, 0.6f, 24) };
 
   // 影の材質バッファ
   const GgSimpleShader::MaterialBuffer materialBuffer{ shadowMaterial };
 
   // 物体の図形データの読み込み
-  const std::unique_ptr<const GgElements> object{ ggElementsObj("bunny.obj") };
+  const auto object{ ggElementsObj("bunny.obj") };
 
   // 物体の材質
   GgSimpleShader::MaterialBuffer objectMaterialBuffer{ objectMaterial, objects };
